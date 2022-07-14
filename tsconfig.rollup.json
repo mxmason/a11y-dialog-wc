@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "declarationDir": ".",
+    "target": "ES2018",
+    "moduleResolution": "node",
+    "strict": true
+  },
+  "include": ["src/*.ts"],
+  "exclude": ["node_modules"]
+}
