@@ -7,7 +7,7 @@ const plugins = [nodeResolve(), typescript({sourceMap: true, tsconfig: './tsconf
 export default [
   {
     plugins,
-    input: 'src/index.ts',
+    input: 'src/a11y-dialog.ts',
     output: [
       {
         file: 'dist/a11y-dialog.js',
