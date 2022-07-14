@@ -4,11 +4,11 @@
   "license": "MIT",
   "author": "EJ Mason",
   "version": "0.0.1",
-  "main": "dist/src/index.js",
-  "module": "dist/src/index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./a11y-dialog.js": "./dist/src/a11y-dialog.js"
+    ".": "./dist/index.js",
+    "./a11y-dialog.js": "./dist/a11y-dialog.js"
   },
   "scripts": {
     "analyze": "cem analyze --litelement",
