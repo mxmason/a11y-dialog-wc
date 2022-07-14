@@ -55,18 +55,11 @@ export class A11yDialog extends HTMLElement {
       ?.querySelector('[part="overlay"]')
       ?.addEventListener('click', this.__cancel);
 
-    // eslint-disable-next-line wc/require-listener-teardown
-    this.addEventListener('click', (evt) => {
-      const target = evt.target as HTMLElement
+    this.addEventListener('click', this.__handleCloseDelegates, true);
+  }
 
-      if (target.matches('[data-a11y-dialog-close]')) {
-        this.close()
-      }
-
-      if (target.matches('[data-a11y-dialog-cancel]')) {
-        this.__cancel()
-      }
-    })
+  disconnectedCallback() {
+    this.removeEventListener('click', this.__handleCloseDelegates, true);
   }
 
   show = () => {
@@ -82,6 +75,18 @@ export class A11yDialog extends HTMLElement {
   };
 
   protected __cancel = this.close.bind(this, 'cancel');
+
+  protected __handleCloseDelegates: EventListener = evt => {
+    const target = evt.target as HTMLElement;
+
+    if (target.matches('[data-a11y-dialog-close]')) {
+      this.close();
+    }
+
+    if (target.matches('[data-a11y-dialog-cancel]')) {
+      this.__cancel();
+    }
+  };
 
   /**
    * Private event handler used when listening to some specific key presses
