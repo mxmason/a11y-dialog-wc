@@ -20,12 +20,10 @@ export class A11yDialog extends LitElement {
 
   constructor() {
     super();
-    const host = this;
-
-    host.setAttribute('aria-hidden', 'true');
-    host.setAttribute('aria-modal', 'true');
-    host.setAttribute('role', 'dialog');
-    host.setAttribute('tabindex', '-1');
+    this.setAttribute('aria-hidden', 'true');
+    this.setAttribute('aria-modal', 'true');
+    this.setAttribute('role', 'dialog');
+    this.setAttribute('tabindex', '-1');
 
     this.open = this.hasAttribute('open');
     this.previouslyFocused = null;
