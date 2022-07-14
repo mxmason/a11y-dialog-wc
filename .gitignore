@@ -19,6 +19,8 @@
 /_site/
 /dist/
 /out-tsc/
+/demo/*.js
+/demo/*.map
 
 storybook-static
 custom-elements.json
