@@ -1,7 +1,7 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 /* eslint-disable lines-between-class-members */
 
-import { addDelegateListener, moveFocusToDialog, trapTabKey } from './utils';
+import { moveFocusToDialog, trapTabKey } from './utils';
 
 export type A11yDialogEvent = 'cancel' | 'close' | 'show';
 
@@ -55,13 +55,18 @@ export class A11yDialog extends HTMLElement {
       ?.querySelector('[part="overlay"]')
       ?.addEventListener('click', this.__cancel);
 
-    addDelegateListener(this, 'click', '[data-a11y-dialog-cancel]', () => {
-      this.__cancel();
-    });
+    // eslint-disable-next-line wc/require-listener-teardown
+    this.addEventListener('click', (evt) => {
+      const target = evt.target as HTMLElement
 
-    addDelegateListener(this, 'click', '[data-a11y-dialog-close]', () => {
-      this.close();
-    });
+      if (target.matches('[data-a11y-dialog-close]')) {
+        this.close()
+      }
+
+      if (target.matches('[data-a11y-dialog-cancel]')) {
+        this.__cancel()
+      }
+    })
   }
 
   show = () => {
