@@ -11,7 +11,7 @@
     "./a11y-dialog.js": "./dist/a11y-dialog.js"
   },
   "scripts": {
-    "analyze": "cem analyze --litelement",
+    "analyze": "cem analyze",
     "start": "tsc && cp demo/* dist/ && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wds\"",
     "build": "tsc && cp demo/* dist/ && npm run analyze -- --exclude dist",
     "build-ci": "rollup -c && cp demo/* dist/ && npm run analyze -- --exclude dist",
@@ -24,8 +24,7 @@
     "storybook:build": "tsc && npm run analyze -- --exclude dist && build-storybook"
   },
   "dependencies": {
-    "focusable-selectors": "^0.4.0",
-    "lit": "^2.2.7"
+    "focusable-selectors": "^0.4.0"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "^0.6.3",

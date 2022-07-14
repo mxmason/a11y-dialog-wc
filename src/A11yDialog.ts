@@ -1,32 +1,59 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 /* eslint-disable lines-between-class-members */
 
-import { html, LitElement } from 'lit';
 import { addDelegateListener, moveFocusToDialog, trapTabKey } from './utils';
 
 export type A11yDialogEvent = 'cancel' | 'close' | 'show';
 
-export class A11yDialog extends LitElement {
-  public open;
+const tmp = document.createElement('template');
+tmp.innerHTML = `
+  <div part="overlay" part="overlay"><div>
+  <div part="content">
+    <slot name="content"></slot>
+  </div>
+`;
+
+export class A11yDialog extends HTMLElement {
   protected previouslyFocused: null | HTMLElement;
 
-  static properties = {
-    open: {
-      reflect: true,
-      type: Boolean,
-    },
-    previouslyFocused: { state: true },
-  };
+  static get observedAttributes() {
+    return ['open'];
+  }
+
+  get open() {
+    return this.hasAttribute('open');
+  }
+
+  set open(isOpen) {
+    if (isOpen) {
+      this.setAttribute('open', '');
+      this.removeAttribute('aria-hidden');
+    } else {
+      this.removeAttribute('open');
+      this.setAttribute('aria-hidden', 'true');
+    }
+  }
 
   constructor() {
     super();
+    // Create a shadow root
+    this.attachShadow({ mode: 'open' }).appendChild(
+      tmp.content.cloneNode(true)
+    );
+
+    this.previouslyFocused = null;
+  }
+
+  connectedCallback() {
     this.setAttribute('aria-hidden', 'true');
     this.setAttribute('aria-modal', 'true');
     this.setAttribute('role', 'dialog');
     this.setAttribute('tabindex', '-1');
-
     this.open = this.hasAttribute('open');
-    this.previouslyFocused = null;
+
+    this.shadowRoot
+      ?.querySelector('[part="overlay"]')
+      ?.addEventListener('click', this.__cancel);
 
     addDelegateListener(this, 'click', '[data-a11y-dialog-cancel]', () => {
       this.__cancel();
@@ -43,27 +70,10 @@ export class A11yDialog extends LitElement {
     this.dispatchEvent(new Event('show'));
   };
 
-  protected doShowCleanup = () => {
-    this.previouslyFocused = document.activeElement as HTMLElement;
-    this.removeAttribute('aria-hidden');
-    moveFocusToDialog(this);
-
-    this.addEventListener('keydown', this.bindKeypress, true);
-    document.addEventListener('focus', this.maintainFocus, true);
-  };
-
   close = (type: 'close' | 'cancel' = 'close') => {
     this.open = false;
 
     this.dispatchEvent(new Event(type));
-  };
-
-  protected doHideCleanup = () => {
-    this.setAttribute('aria-hidden', 'true');
-    this.previouslyFocused?.focus();
-
-    this.removeEventListener('keydown', this.bindKeypress, true);
-    document.removeEventListener('focus', this.maintainFocus, true);
   };
 
   protected __cancel = this.close.bind(this, 'cancel');
@@ -103,19 +113,22 @@ export class A11yDialog extends LitElement {
   ): void {
     if (name === 'open' && _old !== value) {
       if (value === '') {
-        this.doShowCleanup();
+        this.open = true;
+
+        this.previouslyFocused = document.activeElement as HTMLElement;
+
+        moveFocusToDialog(this);
+
+        this.addEventListener('keydown', this.bindKeypress, true);
+        document.addEventListener('focus', this.maintainFocus, true);
       } else {
-        this.doHideCleanup();
+        this.open = false;
+
+        this.previouslyFocused?.focus();
+
+        this.removeEventListener('keydown', this.bindKeypress, true);
+        document.removeEventListener('focus', this.maintainFocus, true);
       }
     }
-  }
-
-  render() {
-    return html`
-      <div part="overlay" @click="${this.__cancel}"></div>
-      <div part="content" role="document">
-        <slot name="content"></slot>
-      </div>
-    `;
   }
 }
