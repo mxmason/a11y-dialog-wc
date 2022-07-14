@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="../dist/src/a11y-dialog.js" defer></script>
+  </head>
+  <body>
+    <h1>Hewwo</h1>
+    <button data-a11y-dialog-show="foo">Show</button>
+    <a11y-dialog id="my-dialog">
+      <div slot="content">
+        <h2>Hewwo</h2>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique
+          quia consequuntur placeat cum, eaque laborum nobis accusamus explicabo
+          repudiandae necessitatibus, delectus ipsa, rerum non! Eum incidunt in
+          veniam soluta esse.
+        </p>
+        <button data-a11y-dialog-close>Close</button>
+        <button data-a11y-dialog-cancel>Cancel</button>
+      </div>
+    </a11y-dialog>
+    <div id="output"><p>Close the dialog to change this message</p></div>
+  </body>
+  <script>
+    const dialog = document.querySelector('a11y-dialog');
+    const output = document.querySelector('#output');
+    const showBtn = document.querySelector('[data-a11y-dialog-show]');
+
+    showBtn.addEventListener('click', () => {
+      dialog.show();
+    });
+
+    dialog.addEventListener('close', () => {
+      output.innerHTML = '<p>The dialog was closed.</p>';
+    });
+
+    dialog.addEventListener('cancel', () => {
+      output.innerHTML = '<p>The dialog was canceled.</p>';
+    });
+  </script>
+</html>
