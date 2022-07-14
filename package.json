@@ -1,9 +1,9 @@
 {
-  "name": "a11y-dialog",
+  "name": "a11y-dialog-wc",
   "description": "Webcomponent a11y-dialog following open-wc recommendations",
   "license": "MIT",
-  "author": "a11y-dialog",
-  "version": "0.0.0",
+  "author": "EJ Mason",
+  "version": "0.0.1",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
   "exports": {
