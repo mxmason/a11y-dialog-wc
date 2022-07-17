@@ -62,13 +62,13 @@ export class A11yDialog extends HTMLElement {
     this.removeEventListener('click', this.__handleCloseDelegates, true);
   }
 
-  show = () => {
+  show() {
     this.open = true;
 
     this.dispatchEvent(new Event('show'));
   };
 
-  close = (type: 'close' | 'cancel' = 'close') => {
+  close(type: 'close' | 'cancel' = 'close') {
     this.open = false;
 
     this.dispatchEvent(new Event(type));
@@ -76,7 +76,7 @@ export class A11yDialog extends HTMLElement {
 
   protected __cancel = this.close.bind(this, 'cancel');
 
-  protected __handleCloseDelegates: EventListener = evt => {
+  protected __handleCloseDelegates(evt: Event) {
     const target = evt.target as HTMLElement;
 
     if (target.matches('[data-a11y-dialog-close]')) {
@@ -92,7 +92,7 @@ export class A11yDialog extends HTMLElement {
    * Private event handler used when listening to some specific key presses
    * (namely ESC and TAB)
    */
-  protected bindKeypress = (event: KeyboardEvent) => {
+  protected bindKeypress(event: KeyboardEvent) {
     // If the dialog is shown and the ESC key is pressed,
     // cancel the dialog
     if (event.key === 'Escape') {
@@ -107,7 +107,7 @@ export class A11yDialog extends HTMLElement {
     }
   };
 
-  protected maintainFocus = (event: FocusEvent) => {
+  protected maintainFocus(event: FocusEvent) {
     if (
       !(event.target as HTMLElement).closest(
         '[aria-modal="true"], [data-a11y-dialog-ignore-focus-trap]'
