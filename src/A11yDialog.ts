@@ -8,7 +8,7 @@ export type A11yDialogEvent = 'cancel' | 'close' | 'show';
 
 const tmp = document.createElement('template');
 tmp.innerHTML = `
-  <div part="overlay" part="overlay"><div>
+  <div part="overlay" part="overlay"></div>
   <div part="content" role="document">
     <slot name="content"></slot>
   </div>
