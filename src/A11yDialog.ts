@@ -12,6 +12,8 @@ template.innerHTML = `
   </div>
 `;
 
+type Instance = InstanceType<typeof A11yDialog>;
+
 function bindDelegatedClicks(
   this: InstanceType<typeof A11yDialog>,
   evt: Event
@@ -27,8 +29,37 @@ function bindDelegatedClicks(
   }
 }
 
+/**
+ * Event handler used when listening to some specific key presses
+ * (namely ESC and TAB)
+ */
+function bindKeypress(this: Instance, event: KeyboardEvent) {
+  // If the dialog is shown and the ESC key is pressed,
+  // cancel the dialog
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    this.__cancel();
+  }
+
+  // If the dialog is shown and the TAB key is pressed, make sure the focus
+  // stays trapped within the dialog element
+  if (event.key === 'Tab') {
+    trapTabKey(this, event);
+  }
+}
+
+function maintainFocus(this: Instance, event: Event) {
+  if (
+    !(event.target as HTMLElement).closest(
+      '[aria-modal="true"], [data-a11y-dialog-ignore-focus-trap]'
+    )
+  )
+    moveFocusToDialog(this);
+}
+
 export type A11yDialogEvent = 'cancel' | 'close' | 'show';
 export class A11yDialog extends HTMLElement {
+  protected maintainFocus: EventListener;
   protected previouslyFocused: null | HTMLElement;
 
   static get observedAttributes() {
@@ -57,6 +88,8 @@ export class A11yDialog extends HTMLElement {
     );
 
     this.previouslyFocused = null;
+
+    this.maintainFocus = maintainFocus.bind(this)
   }
 
   connectedCallback() {
@@ -91,35 +124,6 @@ export class A11yDialog extends HTMLElement {
 
   protected __cancel = this.close.bind(this, 'cancel');
 
-
-  /**
-   * Private event handler used when listening to some specific key presses
-   * (namely ESC and TAB)
-   */
-  protected bindKeypress(event: KeyboardEvent) {
-    // If the dialog is shown and the ESC key is pressed,
-    // cancel the dialog
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      this.__cancel();
-    }
-
-    // If the dialog is shown and the TAB key is pressed, make sure the focus
-    // stays trapped within the dialog element
-    if (event.key === 'Tab') {
-      trapTabKey(this, event);
-    }
-  }
-
-  protected maintainFocus(event: FocusEvent) {
-    if (
-      !(event.target as HTMLElement).closest(
-        '[aria-modal="true"], [data-a11y-dialog-ignore-focus-trap]'
-      )
-    )
-      moveFocusToDialog(this);
-  }
-
   attributeChangedCallback(
     name: string,
     _old: string | null,
@@ -133,14 +137,19 @@ export class A11yDialog extends HTMLElement {
 
         moveFocusToDialog(this);
 
-        this.addEventListener('keydown', this.bindKeypress, true);
+        this.addEventListener('keydown', bindKeypress as EventListener, true);
         document.addEventListener('focus', this.maintainFocus, true);
+
       } else {
         this.open = false;
 
         this.previouslyFocused?.focus();
 
-        this.removeEventListener('keydown', this.bindKeypress, true);
+        this.removeEventListener(
+          'keydown',
+          bindKeypress as EventListener,
+          true
+        );
         document.removeEventListener('focus', this.maintainFocus, true);
       }
     }
