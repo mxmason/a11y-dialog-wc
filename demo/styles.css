@@ -19,6 +19,10 @@ button {
   line-height: inherit;
 }
 
+a11y-dialog:not(:defined) {
+  display: none;
+}
+
 a11y-dialog:not([open]) {
   visibility: hidden;
   opacity: 0;
