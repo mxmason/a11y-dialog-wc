@@ -40,7 +40,7 @@ function bindKeypress(this: Instance, event: KeyboardEvent) {
   // cancel the dialog
   if (event.key === 'Escape') {
     event.preventDefault();
-    fireEvent.call(dialog, 'cancel')
+    fireEvent.call(dialog, 'cancel');
   }
 
   // If the dialog is shown and the TAB key is pressed, make sure the focus
@@ -52,17 +52,17 @@ function bindKeypress(this: Instance, event: KeyboardEvent) {
 
 function maintainFocus(this: Instance, event: FocusEvent) {
   const dialog = this;
-  const target = event.relatedTarget as HTMLElement | undefined;
+  const nextActiveEl = event.relatedTarget as HTMLElement | null;
 
-  if (!target?.closest(`#${dialog.id}`)) {
+  if (!nextActiveEl?.closest('a11y-dialog')) {
     moveFocusToDialog(dialog);
   }
 }
 
 function fireEvent(this: Instance, evtName: A11yDialogEvent) {
-  this.open = evtName === 'show'
+  this.open = evtName === 'show';
 
-  this.dispatchEvent(new Event(evtName))
+  this.dispatchEvent(new Event(evtName));
 }
 export class A11yDialog extends HTMLElement {
   protected previouslyFocused: null | HTMLElement;
@@ -107,15 +107,19 @@ export class A11yDialog extends HTMLElement {
       ?.addEventListener('click', fireEvent.bind(this, 'cancel'));
 
     this.addEventListener('click', bindDelegatedClicks, true);
+    this.addEventListener('keydown', bindKeypress as EventListener, true);
+    this.addEventListener('focusout', maintainFocus as EventListener, true);
   }
 
   disconnectedCallback() {
     this.removeEventListener('click', bindDelegatedClicks, true);
+    this.removeEventListener('keydown', bindKeypress as EventListener, true);
+    this.removeEventListener('focusout', maintainFocus as EventListener, true);
   }
 
-  show = fireEvent.bind(this, 'show')
+  show = fireEvent.bind(this, 'show');
 
-  close = fireEvent.bind(this, 'close')
+  close = fireEvent.bind(this, 'close');
 
   attributeChangedCallback(
     name: string,
@@ -129,28 +133,14 @@ export class A11yDialog extends HTMLElement {
         this.previouslyFocused = document.activeElement as HTMLElement;
 
         moveFocusToDialog(this);
-
-        this.addEventListener('keydown', bindKeypress as EventListener, true);
-        this.addEventListener('focusout', maintainFocus as EventListener, true);
       } else {
         this.open = false;
 
         this.previouslyFocused?.focus();
-
-        this.removeEventListener(
-          'keydown',
-          bindKeypress as EventListener,
-          true
-        );
-        this.removeEventListener(
-          'focusout',
-          maintainFocus as EventListener,
-          true
-        );
       }
     }
   }
 }
 
-export type A11yDialogElement = Instance
+export type A11yDialogElement = Instance;
 export type A11yDialogEvent = 'cancel' | 'close' | 'show';
