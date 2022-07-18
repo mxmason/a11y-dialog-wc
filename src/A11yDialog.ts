@@ -26,7 +26,7 @@ function bindDelegatedClicks(
   }
 
   if (target.matches('[data-a11y-dialog-cancel]')) {
-    cancel.call(dialog)
+    fireEvent.call(dialog, 'cancel')
   }
 }
 
@@ -40,7 +40,7 @@ function bindKeypress(this: Instance, event: KeyboardEvent) {
   // cancel the dialog
   if (event.key === 'Escape') {
     event.preventDefault();
-    cancel.call(dialog)
+    fireEvent.call(dialog, 'cancel')
   }
 
   // If the dialog is shown and the TAB key is pressed, make sure the focus
@@ -59,13 +59,11 @@ function maintainFocus(this: Instance, event: FocusEvent) {
   }
 }
 
-function cancel(this: Instance) {
-  this.open = false;
+function fireEvent(this: Instance, evtName: A11yDialogEvent) {
+  this.open = evtName === 'show'
 
-  this.dispatchEvent(new Event('cancel'));
+  this.dispatchEvent(new Event(evtName))
 }
-
-export type A11yDialogEvent = 'cancel' | 'close' | 'show';
 export class A11yDialog extends HTMLElement {
   protected previouslyFocused: null | HTMLElement;
 
@@ -106,7 +104,7 @@ export class A11yDialog extends HTMLElement {
 
     this.shadowRoot
       ?.querySelector('[part="overlay"]')
-      ?.addEventListener('click', cancel.bind(this));
+      ?.addEventListener('click', fireEvent.bind(this, 'cancel'));
 
     this.addEventListener('click', bindDelegatedClicks, true);
   }
@@ -115,17 +113,9 @@ export class A11yDialog extends HTMLElement {
     this.removeEventListener('click', bindDelegatedClicks, true);
   }
 
-  show() {
-    this.open = true;
+  show = fireEvent.bind(this, 'show')
 
-    this.dispatchEvent(new Event('show'));
-  }
-
-  close() {
-    this.open = false;
-
-    this.dispatchEvent(new Event('close'));
-  }
+  close = fireEvent.bind(this, 'close')
 
   attributeChangedCallback(
     name: string,
@@ -161,3 +151,6 @@ export class A11yDialog extends HTMLElement {
     }
   }
 }
+
+export type A11yDialogElement = Instance
+export type A11yDialogEvent = 'cancel' | 'close' | 'show';

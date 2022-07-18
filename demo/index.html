@@ -35,6 +35,10 @@
       dialog.show();
     });
 
+    dialog.addEventListener('show', () => {
+      output.innerHTML = '<p>The dialog was shown.</p>';
+    });
+
     dialog.addEventListener('close', () => {
       output.innerHTML = '<p>The dialog was closed.</p>';
     });
