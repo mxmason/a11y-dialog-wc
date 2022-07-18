@@ -1,5 +1,6 @@
-/* eslint-disable lit-a11y/click-events-have-key-events */
 /* eslint-disable lines-between-class-members */
+/* eslint-disable no-use-before-define */
+/* eslint-disable lit-a11y/click-events-have-key-events */
 
 import { moveFocusToDialog, trapTabKey } from './utils';
 
@@ -12,6 +13,21 @@ tmp.innerHTML = `
     <slot name="content"></slot>
   </div>
 `;
+
+function handleCloseDelegates(
+  this: InstanceType<typeof A11yDialog>,
+  evt: Event
+) {
+  const target = evt.target as HTMLElement;
+
+  if (target.matches('[data-a11y-dialog-close]')) {
+    this.close();
+  }
+
+  if (target.matches('[data-a11y-dialog-cancel]')) {
+    this.__cancel();
+  }
+}
 
 export class A11yDialog extends HTMLElement {
   protected previouslyFocused: null | HTMLElement;
@@ -55,38 +71,27 @@ export class A11yDialog extends HTMLElement {
       ?.querySelector('[part="overlay"]')
       ?.addEventListener('click', this.__cancel);
 
-    this.addEventListener('click', this.__handleCloseDelegates, true);
+    this.addEventListener('click', handleCloseDelegates, true);
   }
 
   disconnectedCallback() {
-    this.removeEventListener('click', this.__handleCloseDelegates, true);
+    this.removeEventListener('click', handleCloseDelegates, true);
   }
 
   show() {
     this.open = true;
 
     this.dispatchEvent(new Event('show'));
-  };
+  }
 
   close(type: 'close' | 'cancel' = 'close') {
     this.open = false;
 
     this.dispatchEvent(new Event(type));
-  };
+  }
 
   protected __cancel = this.close.bind(this, 'cancel');
 
-  protected __handleCloseDelegates(evt: Event) {
-    const target = evt.target as HTMLElement;
-
-    if (target.matches('[data-a11y-dialog-close]')) {
-      this.close();
-    }
-
-    if (target.matches('[data-a11y-dialog-cancel]')) {
-      this.__cancel();
-    }
-  };
 
   /**
    * Private event handler used when listening to some specific key presses
@@ -105,7 +110,7 @@ export class A11yDialog extends HTMLElement {
     if (event.key === 'Tab') {
       trapTabKey(this, event);
     }
-  };
+  }
 
   protected maintainFocus(event: FocusEvent) {
     if (
@@ -114,7 +119,7 @@ export class A11yDialog extends HTMLElement {
       )
     )
       moveFocusToDialog(this);
-  };
+  }
 
   attributeChangedCallback(
     name: string,
