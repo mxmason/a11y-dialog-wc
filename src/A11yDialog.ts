@@ -18,14 +18,15 @@ function bindDelegatedClicks(
   this: InstanceType<typeof A11yDialog>,
   evt: Event
 ) {
+  const dialog = this;
   const target = evt.target as HTMLElement;
 
   if (target.matches('[data-a11y-dialog-close]')) {
-    this.close();
+    dialog.close();
   }
 
   if (target.matches('[data-a11y-dialog-cancel]')) {
-    this.__cancel();
+    dialog.__cancel();
   }
 }
 
@@ -34,32 +35,32 @@ function bindDelegatedClicks(
  * (namely ESC and TAB)
  */
 function bindKeypress(this: Instance, event: KeyboardEvent) {
+  const dialog = this
   // If the dialog is shown and the ESC key is pressed,
   // cancel the dialog
   if (event.key === 'Escape') {
     event.preventDefault();
-    this.__cancel();
+    dialog.__cancel();
   }
 
   // If the dialog is shown and the TAB key is pressed, make sure the focus
   // stays trapped within the dialog element
   if (event.key === 'Tab') {
-    trapTabKey(this, event);
+    trapTabKey(dialog, event);
   }
 }
 
-function maintainFocus(this: Instance, event: Event) {
-  if (
-    !(event.target as HTMLElement).closest(
-      '[aria-modal="true"], [data-a11y-dialog-ignore-focus-trap]'
-    )
-  )
-    moveFocusToDialog(this);
+function maintainFocus(this: Instance, event: FocusEvent) {
+  const dialog = this;
+  const target = event.relatedTarget as HTMLElement
+
+  if (!target.closest(`#${dialog.id}`)) {
+    moveFocusToDialog(dialog)
+  }
 }
 
 export type A11yDialogEvent = 'cancel' | 'close' | 'show';
 export class A11yDialog extends HTMLElement {
-  protected maintainFocus: EventListener;
   protected previouslyFocused: null | HTMLElement;
 
   static get observedAttributes() {
@@ -89,7 +90,6 @@ export class A11yDialog extends HTMLElement {
 
     this.previouslyFocused = null;
 
-    this.maintainFocus = maintainFocus.bind(this)
   }
 
   connectedCallback() {
@@ -138,7 +138,7 @@ export class A11yDialog extends HTMLElement {
         moveFocusToDialog(this);
 
         this.addEventListener('keydown', bindKeypress as EventListener, true);
-        document.addEventListener('focus', this.maintainFocus, true);
+        this.addEventListener('focusout', maintainFocus as EventListener, true);
 
       } else {
         this.open = false;
@@ -150,7 +150,7 @@ export class A11yDialog extends HTMLElement {
           bindKeypress as EventListener,
           true
         );
-        document.removeEventListener('focus', this.maintainFocus, true);
+        this.removeEventListener('focusout', maintainFocus as EventListener, true);
       }
     }
   }

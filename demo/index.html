@@ -20,6 +20,7 @@
         </p>
         <button data-a11y-dialog-close>Close</button>
         <button data-a11y-dialog-cancel>Cancel</button>
+        <button data-escape-dialog>Escape from dialog</button>
       </div>
     </a11y-dialog>
     <div id="output"><p>Close the dialog to change this message</p></div>
@@ -28,6 +29,7 @@
     const dialog = document.querySelector('a11y-dialog');
     const output = document.querySelector('#output');
     const showBtn = document.querySelector('[data-a11y-dialog-show]');
+    const escapeBtn = document.querySelector('[data-escape-dialog]')
 
     showBtn.addEventListener('click', () => {
       dialog.show();
@@ -40,5 +42,9 @@
     dialog.addEventListener('cancel', () => {
       output.innerHTML = '<p>The dialog was canceled.</p>';
     });
+
+    escapeBtn.addEventListener('click', () => {
+      showBtn.focus()
+    })
   </script>
 </html>
