@@ -26,7 +26,7 @@ function bindDelegatedClicks(
   }
 
   if (target.matches('[data-a11y-dialog-cancel]')) {
-    dialog.__cancel();
+    cancel.call(dialog)
   }
 }
 
@@ -35,12 +35,12 @@ function bindDelegatedClicks(
  * (namely ESC and TAB)
  */
 function bindKeypress(this: Instance, event: KeyboardEvent) {
-  const dialog = this
+  const dialog = this;
   // If the dialog is shown and the ESC key is pressed,
   // cancel the dialog
   if (event.key === 'Escape') {
     event.preventDefault();
-    dialog.__cancel();
+    cancel.call(dialog)
   }
 
   // If the dialog is shown and the TAB key is pressed, make sure the focus
@@ -52,11 +52,17 @@ function bindKeypress(this: Instance, event: KeyboardEvent) {
 
 function maintainFocus(this: Instance, event: FocusEvent) {
   const dialog = this;
-  const target = event.relatedTarget as HTMLElement
+  const target = event.relatedTarget as HTMLElement;
 
   if (!target.closest(`#${dialog.id}`)) {
-    moveFocusToDialog(dialog)
+    moveFocusToDialog(dialog);
   }
+}
+
+function cancel(this: Instance) {
+  this.open = false;
+
+  this.dispatchEvent(new Event('cancel'));
 }
 
 export type A11yDialogEvent = 'cancel' | 'close' | 'show';
@@ -89,7 +95,6 @@ export class A11yDialog extends HTMLElement {
     );
 
     this.previouslyFocused = null;
-
   }
 
   connectedCallback() {
@@ -101,7 +106,7 @@ export class A11yDialog extends HTMLElement {
 
     this.shadowRoot
       ?.querySelector('[part="overlay"]')
-      ?.addEventListener('click', this.__cancel);
+      ?.addEventListener('click', cancel.bind(this));
 
     this.addEventListener('click', bindDelegatedClicks, true);
   }
@@ -116,13 +121,11 @@ export class A11yDialog extends HTMLElement {
     this.dispatchEvent(new Event('show'));
   }
 
-  close(type: 'close' | 'cancel' = 'close') {
+  close() {
     this.open = false;
 
-    this.dispatchEvent(new Event(type));
+    this.dispatchEvent(new Event('close'));
   }
-
-  protected __cancel = this.close.bind(this, 'cancel');
 
   attributeChangedCallback(
     name: string,
@@ -139,7 +142,6 @@ export class A11yDialog extends HTMLElement {
 
         this.addEventListener('keydown', bindKeypress as EventListener, true);
         this.addEventListener('focusout', maintainFocus as EventListener, true);
-
       } else {
         this.open = false;
 
@@ -150,7 +152,11 @@ export class A11yDialog extends HTMLElement {
           bindKeypress as EventListener,
           true
         );
-        this.removeEventListener('focusout', maintainFocus as EventListener, true);
+        this.removeEventListener(
+          'focusout',
+          maintainFocus as EventListener,
+          true
+        );
       }
     }
   }
