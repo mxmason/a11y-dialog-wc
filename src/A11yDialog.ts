@@ -52,9 +52,9 @@ function bindKeypress(this: Instance, event: KeyboardEvent) {
 
 function maintainFocus(this: Instance, event: FocusEvent) {
   const dialog = this;
-  const target = event.relatedTarget as HTMLElement;
+  const target = event.relatedTarget as HTMLElement | undefined;
 
-  if (!target.closest(`#${dialog.id}`)) {
+  if (!target?.closest(`#${dialog.id}`)) {
     moveFocusToDialog(dialog);
   }
 }
