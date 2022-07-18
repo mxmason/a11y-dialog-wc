@@ -4,17 +4,15 @@
 
 import { moveFocusToDialog, trapTabKey } from './utils';
 
-export type A11yDialogEvent = 'cancel' | 'close' | 'show';
-
-const tmp = document.createElement('template');
-tmp.innerHTML = `
+const template = document.createElement('template');
+template.innerHTML = `
   <div part="overlay" part="overlay"></div>
   <div part="content" role="document">
     <slot name="content"></slot>
   </div>
 `;
 
-function handleCloseDelegates(
+function bindDelegatedClicks(
   this: InstanceType<typeof A11yDialog>,
   evt: Event
 ) {
@@ -29,6 +27,7 @@ function handleCloseDelegates(
   }
 }
 
+export type A11yDialogEvent = 'cancel' | 'close' | 'show';
 export class A11yDialog extends HTMLElement {
   protected previouslyFocused: null | HTMLElement;
 
@@ -54,7 +53,7 @@ export class A11yDialog extends HTMLElement {
     super();
     // Create a shadow root
     this.attachShadow({ mode: 'open' }).appendChild(
-      tmp.content.cloneNode(true)
+      template.content.cloneNode(true)
     );
 
     this.previouslyFocused = null;
@@ -71,11 +70,11 @@ export class A11yDialog extends HTMLElement {
       ?.querySelector('[part="overlay"]')
       ?.addEventListener('click', this.__cancel);
 
-    this.addEventListener('click', handleCloseDelegates, true);
+    this.addEventListener('click', bindDelegatedClicks, true);
   }
 
   disconnectedCallback() {
-    this.removeEventListener('click', handleCloseDelegates, true);
+    this.removeEventListener('click', bindDelegatedClicks, true);
   }
 
   show() {
