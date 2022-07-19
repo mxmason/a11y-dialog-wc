@@ -11,10 +11,6 @@ const enum DialogEvents {
   CLOSE = 'close',
   SHOW = 'show',
 }
-
-export type A11yDialogElement = InstanceType<typeof A11yDialog>;
-export type A11yDialogEvent = 'cancel' | 'close' | 'show';
-
 // Create references to selectors that which authors
 // might use in their markup.
 const CANCEL_SELECTOR = '[data-a11y-dialog-cancel]';
@@ -29,19 +25,12 @@ template.innerHTML = `
   </div>
 `;
 
-// Indicate which attributes the component should observe.
-const OBSERVED_ATTRIBUTES = ['open'] as const;
-type ObservedAttributes = typeof OBSERVED_ATTRIBUTES[number];
+export type A11yDialogElement = InstanceType<typeof A11yDialog>;
 
 export class A11yDialog extends HTMLElement {
   // Store a reference to the element that was in focus
   // before the dialog was opened.
   protected previouslyFocused: null | HTMLElement = null;
-
-  // Register our observed attributes with the component.
-  static get observedAttributes() {
-    return OBSERVED_ATTRIBUTES;
-  }
 
   // Make the open property publicly available
   get open() {
@@ -122,13 +111,18 @@ export class A11yDialog extends HTMLElement {
     );
   }
 
+  // Register a list of attributes that the component should obvserve.
+  static get observedAttributes() {
+    return ['open'] as const;
+  }
+
   /**
-   * Watch for changes to our ObservedAttributes,
+   * Watch for changes to our observed attributes,
    * and update public properties of the DOM node
    * accordingly.
    */
   attributeChangedCallback(
-    name: ObservedAttributes,
+    name: typeof A11yDialog.observedAttributes[number],
     _old: string | null,
     value: string | null
   ): void {
@@ -277,3 +271,5 @@ export function trapTabKey(node: HTMLElement, event: KeyboardEvent) {
     event.preventDefault();
   }
 }
+
+export type A11yDialogEvent = 'cancel' | 'close' | 'show';
