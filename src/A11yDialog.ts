@@ -1,8 +1,5 @@
 import focusableSelectors from 'focusable-selectors';
 
-const OBSERVED_ATTRIBUTES = ['open'] as const;
-type ObservedAttributes = typeof OBSERVED_ATTRIBUTES[number];
-
 const enum BrowserEvents {
   CLICK = 'click',
   KEYDOWN = 'keydown',
@@ -32,12 +29,16 @@ template.innerHTML = `
   </div>
 `;
 
+// Indicate which attributes the component should observe.
+const OBSERVED_ATTRIBUTES = ['open'] as const;
+type ObservedAttributes = typeof OBSERVED_ATTRIBUTES[number];
+
 export class A11yDialog extends HTMLElement {
   // Store a reference to the element that was in focus
   // before the dialog was opened.
   protected previouslyFocused: null | HTMLElement = null;
 
-  // Tell the element to watch for changes to OBSERVED_ATTRUBUTES.
+  // Register our observed attributes with the component.
   static get observedAttributes() {
     return OBSERVED_ATTRIBUTES;
   }
