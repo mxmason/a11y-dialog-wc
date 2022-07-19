@@ -12,12 +12,10 @@ template.innerHTML = `
   </div>
 `;
 
-type Instance = InstanceType<typeof A11yDialog>;
+export type A11yDialogElement = InstanceType<typeof A11yDialog>;
+export type A11yDialogEvent = 'cancel' | 'close' | 'show';
 
-function bindDelegatedClicks(
-  this: InstanceType<typeof A11yDialog>,
-  evt: Event
-) {
+function bindDelegatedClicks(this: A11yDialogElement, evt: Event) {
   const dialog = this;
   const target = evt.target as HTMLElement;
 
@@ -26,7 +24,7 @@ function bindDelegatedClicks(
   }
 
   if (target.matches('[data-a11y-dialog-cancel]')) {
-    fireEvent.call(dialog, 'cancel')
+    fireEvent.call(dialog, 'cancel');
   }
 }
 
@@ -34,7 +32,7 @@ function bindDelegatedClicks(
  * Event handler used when listening to some specific key presses
  * (namely ESC and TAB)
  */
-function bindKeypress(this: Instance, event: KeyboardEvent) {
+function bindKeypress(this: A11yDialogElement, event: KeyboardEvent) {
   const dialog = this;
   // If the dialog is shown and the ESC key is pressed,
   // cancel the dialog
@@ -50,7 +48,7 @@ function bindKeypress(this: Instance, event: KeyboardEvent) {
   }
 }
 
-function maintainFocus(this: Instance, event: FocusEvent) {
+function maintainFocus(this: A11yDialogElement, event: FocusEvent) {
   const dialog = this;
   const nextActiveEl = event.relatedTarget as HTMLElement | null;
 
@@ -59,11 +57,12 @@ function maintainFocus(this: Instance, event: FocusEvent) {
   }
 }
 
-function fireEvent(this: Instance, evtName: A11yDialogEvent) {
+function fireEvent(this: A11yDialogElement, evtName: A11yDialogEvent) {
   this.open = evtName === 'show';
 
   this.dispatchEvent(new Event(evtName));
 }
+
 export class A11yDialog extends HTMLElement {
   protected previouslyFocused: null | HTMLElement;
 
@@ -141,6 +140,3 @@ export class A11yDialog extends HTMLElement {
     }
   }
 }
-
-export type A11yDialogElement = Instance;
-export type A11yDialogEvent = 'cancel' | 'close' | 'show';
