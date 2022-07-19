@@ -78,9 +78,12 @@ export class A11yDialog extends HTMLElement {
     if (isOpen) {
       this.setAttribute('open', '');
       this.removeAttribute('aria-hidden');
+      this.previouslyFocused = document.activeElement as HTMLElement;
+      moveFocusToDialog(this);
     } else {
       this.removeAttribute('open');
       this.setAttribute('aria-hidden', 'true');
+      this.previouslyFocused?.focus()
     }
   }
 
@@ -126,17 +129,8 @@ export class A11yDialog extends HTMLElement {
     value: string | null
   ): void {
     if (name === 'open' && _old !== value) {
-      if (value === '') {
-        this.open = true;
-
-        this.previouslyFocused = document.activeElement as HTMLElement;
-
-        moveFocusToDialog(this);
-      } else {
-        this.open = false;
-
-        this.previouslyFocused?.focus();
-      }
+      this.open = value === '';
     }
   }
+
 }
