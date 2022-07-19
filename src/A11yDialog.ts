@@ -1,18 +1,69 @@
-/* eslint-disable lit-a11y/click-events-have-key-events */
 /* eslint-disable lines-between-class-members */
+/* eslint-disable no-use-before-define */
+/* eslint-disable lit-a11y/click-events-have-key-events */
 
 import { moveFocusToDialog, trapTabKey } from './utils';
 
-export type A11yDialogEvent = 'cancel' | 'close' | 'show';
-
-const tmp = document.createElement('template');
-tmp.innerHTML = `
-  <div part="overlay" part="overlay"><div>
+const template = document.createElement('template');
+template.innerHTML = `
+  <div part="overlay" part="overlay"></div>
   <div part="content" role="document">
     <slot name="content"></slot>
   </div>
 `;
 
+type Instance = InstanceType<typeof A11yDialog>;
+
+function bindDelegatedClicks(
+  this: InstanceType<typeof A11yDialog>,
+  evt: Event
+) {
+  const dialog = this;
+  const target = evt.target as HTMLElement;
+
+  if (target.matches('[data-a11y-dialog-close]')) {
+    dialog.close();
+  }
+
+  if (target.matches('[data-a11y-dialog-cancel]')) {
+    fireEvent.call(dialog, 'cancel')
+  }
+}
+
+/**
+ * Event handler used when listening to some specific key presses
+ * (namely ESC and TAB)
+ */
+function bindKeypress(this: Instance, event: KeyboardEvent) {
+  const dialog = this;
+  // If the dialog is shown and the ESC key is pressed,
+  // cancel the dialog
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    fireEvent.call(dialog, 'cancel');
+  }
+
+  // If the dialog is shown and the TAB key is pressed, make sure the focus
+  // stays trapped within the dialog element
+  if (event.key === 'Tab') {
+    trapTabKey(dialog, event);
+  }
+}
+
+function maintainFocus(this: Instance, event: FocusEvent) {
+  const dialog = this;
+  const nextActiveEl = event.relatedTarget as HTMLElement | null;
+
+  if (!nextActiveEl?.closest('a11y-dialog')) {
+    moveFocusToDialog(dialog);
+  }
+}
+
+function fireEvent(this: Instance, evtName: A11yDialogEvent) {
+  this.open = evtName === 'show';
+
+  this.dispatchEvent(new Event(evtName));
+}
 export class A11yDialog extends HTMLElement {
   protected previouslyFocused: null | HTMLElement;
 
@@ -38,7 +89,7 @@ export class A11yDialog extends HTMLElement {
     super();
     // Create a shadow root
     this.attachShadow({ mode: 'open' }).appendChild(
-      tmp.content.cloneNode(true)
+      template.content.cloneNode(true)
     );
 
     this.previouslyFocused = null;
@@ -53,68 +104,22 @@ export class A11yDialog extends HTMLElement {
 
     this.shadowRoot
       ?.querySelector('[part="overlay"]')
-      ?.addEventListener('click', this.__cancel);
+      ?.addEventListener('click', fireEvent.bind(this, 'cancel'));
 
-    this.addEventListener('click', this.__handleCloseDelegates, true);
+    this.addEventListener('click', bindDelegatedClicks, true);
+    this.addEventListener('keydown', bindKeypress as EventListener, true);
+    this.addEventListener('focusout', maintainFocus as EventListener, true);
   }
 
   disconnectedCallback() {
-    this.removeEventListener('click', this.__handleCloseDelegates, true);
+    this.removeEventListener('click', bindDelegatedClicks, true);
+    this.removeEventListener('keydown', bindKeypress as EventListener, true);
+    this.removeEventListener('focusout', maintainFocus as EventListener, true);
   }
 
-  show = () => {
-    this.open = true;
+  show = fireEvent.bind(this, 'show');
 
-    this.dispatchEvent(new Event('show'));
-  };
-
-  close = (type: 'close' | 'cancel' = 'close') => {
-    this.open = false;
-
-    this.dispatchEvent(new Event(type));
-  };
-
-  protected __cancel = this.close.bind(this, 'cancel');
-
-  protected __handleCloseDelegates: EventListener = evt => {
-    const target = evt.target as HTMLElement;
-
-    if (target.matches('[data-a11y-dialog-close]')) {
-      this.close();
-    }
-
-    if (target.matches('[data-a11y-dialog-cancel]')) {
-      this.__cancel();
-    }
-  };
-
-  /**
-   * Private event handler used when listening to some specific key presses
-   * (namely ESC and TAB)
-   */
-  protected bindKeypress = (event: KeyboardEvent) => {
-    // If the dialog is shown and the ESC key is pressed,
-    // cancel the dialog
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      this.__cancel();
-    }
-
-    // If the dialog is shown and the TAB key is pressed, make sure the focus
-    // stays trapped within the dialog element
-    if (event.key === 'Tab') {
-      trapTabKey(this, event);
-    }
-  };
-
-  protected maintainFocus = (event: FocusEvent) => {
-    if (
-      !(event.target as HTMLElement).closest(
-        '[aria-modal="true"], [data-a11y-dialog-ignore-focus-trap]'
-      )
-    )
-      moveFocusToDialog(this);
-  };
+  close = fireEvent.bind(this, 'close');
 
   attributeChangedCallback(
     name: string,
@@ -128,17 +133,14 @@ export class A11yDialog extends HTMLElement {
         this.previouslyFocused = document.activeElement as HTMLElement;
 
         moveFocusToDialog(this);
-
-        this.addEventListener('keydown', this.bindKeypress, true);
-        document.addEventListener('focus', this.maintainFocus, true);
       } else {
         this.open = false;
 
         this.previouslyFocused?.focus();
-
-        this.removeEventListener('keydown', this.bindKeypress, true);
-        document.removeEventListener('focus', this.maintainFocus, true);
       }
     }
   }
 }
+
+export type A11yDialogElement = Instance;
+export type A11yDialogEvent = 'cancel' | 'close' | 'show';
