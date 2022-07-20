@@ -117,21 +117,6 @@ export class A11yDialog extends HTMLElement {
   }
 
   /**
-   * Watch for changes to our observed attributes,
-   * and update public properties of the DOM node
-   * accordingly.
-   */
-  attributeChangedCallback(
-    name: typeof A11yDialog.observedAttributes[number],
-    _old: string | null,
-    value: string | null
-  ): void {
-    if (name === 'open' && _old !== value) {
-      this.open = value === '';
-    }
-  }
-
-  /**
    * Open the dialog and dispatch its `show` event.
    */
   show = () => {
@@ -144,7 +129,7 @@ export class A11yDialog extends HTMLElement {
    * Close the dialog and dispatch its 'close' event.
    */
   close = () => {
-    this.open = true;
+    this.open = false;
 
     this.dispatchEvent(new Event(DialogEvents.CLOSE));
   };
@@ -232,7 +217,7 @@ export function moveFocusToDialog(node: HTMLElement) {
  */
 function getFocusableChildren(node: ParentNode): HTMLElement[] {
   const focusableEls = Array.prototype.slice.call(
-    node.querySelectorAll(focusableSelectors.join(''))
+    node.querySelectorAll(focusableSelectors.join(','))
   ) as HTMLElement[];
   return focusableEls.filter(
     child =>
