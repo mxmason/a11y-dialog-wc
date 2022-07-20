@@ -75,12 +75,14 @@ export class A11yDialog extends HTMLElement {
 
     // Finds the overlay element in the Shadow DOM
     // and candels the modal when it's clicked
-    this.shadowRoot
-      ?.querySelector(CANCEL_SELECTOR)
-      ?.addEventListener(BrowserEvents.CLICK, cancel.bind(this));
+    this.shadowRoot?.addEventListener(
+      BrowserEvents.CLICK,
+      bindTriggerClicks,
+      true
+    );
 
     // Add delegated event listeners to the host element.
-    this.addEventListener(BrowserEvents.CLICK, bindDelegatedClicks, true);
+    this.addEventListener(BrowserEvents.CLICK, bindTriggerClicks, true);
     this.addEventListener(
       BrowserEvents.KEYDOWN,
       bindKeypress as EventListener,
@@ -98,7 +100,12 @@ export class A11yDialog extends HTMLElement {
    */
   disconnectedCallback() {
     // Clean up our event listeners.
-    this.removeEventListener(BrowserEvents.CLICK, bindDelegatedClicks, true);
+    this.shadowRoot?.removeEventListener(
+      BrowserEvents.CLICK,
+      bindTriggerClicks,
+      true
+    );
+    this.removeEventListener(BrowserEvents.CLICK, bindTriggerClicks, true);
     this.removeEventListener(
       BrowserEvents.KEYDOWN,
       bindKeypress as EventListener,
@@ -153,7 +160,7 @@ function cancel(this: A11yDialogElement) {
  * to bind their own listeners to their close or cancel triggers
  * within the dialog.
  */
-function bindDelegatedClicks(this: A11yDialogElement, evt: Event) {
+function bindTriggerClicks(this: A11yDialogElement, evt: Event) {
   const dialog = this;
   const target = evt.target as HTMLElement;
 
