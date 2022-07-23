@@ -160,16 +160,19 @@ function cancel(this: A11yDialogElement) {
  * to bind their own listeners to their close or cancel triggers
  * within the dialog.
  */
-function bindTriggerClicks(this: A11yDialogElement, evt: Event) {
-	const dialog = this;
+function bindTriggerClicks(this: A11yDialogElement | ShadowRoot, evt: Event) {
+	const dialog =
+		this instanceof ShadowRoot ? (this.host as A11yDialogElement) : this;
 	const target = evt.target as HTMLElement;
 
 	if (target.matches(CLOSE_SELECTOR)) {
 		dialog.close();
+		evt.stopImmediatePropagation();
 	}
 
 	if (target.matches(CANCEL_SELECTOR)) {
 		cancel.call(dialog);
+		evt.stopImmediatePropagation();
 	}
 }
 
@@ -227,7 +230,7 @@ function getFocusableChildren(node: ParentNode): HTMLElement[] {
 		node.querySelectorAll(focusableSelectors.join(','))
 	) as HTMLElement[];
 	return focusableEls.filter(
-		(child) =>
+		child =>
 			!!(
 				child.offsetWidth ||
 				child.offsetHeight ||
