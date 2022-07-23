@@ -1,53 +1,40 @@
 {
   "name": "a11y-dialog-wc",
-  "description": "Webcomponent a11y-dialog following open-wc recommendations",
-  "license": "MIT",
-  "author": "EJ Mason",
   "version": "0.0.1",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=16.15.1",
+    "npm": ">=8.11.0"
+  },
+  "main": "dist/a11y-dialog.js",
   "exports": {
-    ".": "./dist/index.js",
+    ".": "./dist/a11y-dialog.js",
     "./a11y-dialog.js": "./dist/a11y-dialog.js"
   },
+  "types": "types/a11y-dialog.d.ts",
+  "files": [
+    "dist",
+    "types"
+  ],
   "scripts": {
-    "analyze": "cem analyze",
-    "start": "tsc && cp demo/* dist/ && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wds\"",
-    "build": "tsc && cp demo/* dist/ && npm run analyze -- --exclude dist",
-    "build-ci": "rollup -c && cp demo/* dist/ && npm run analyze -- --exclude dist",
-    "prepublishOnly": "tsc && npm run analyze -- --exclude dist",
-    "lint": "eslint --ext .ts,.html . --ignore-path .gitignore && prettier \"**/*.ts\" --check --ignore-path .gitignore",
-    "format": "eslint --ext .ts,.html . --fix --ignore-path .gitignore && prettier \"**/*.ts\" --write --ignore-path .gitignore",
-    "test": "tsc && wtr --coverage",
-    "test:watch": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wtr --watch\"",
-    "storybook": "tsc && npm run analyze -- --exclude dist && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wds -c .storybook/server.mjs\"",
-    "storybook:build": "tsc && npm run analyze -- --exclude dist && build-storybook"
+    "start": "vite",
+    "prebuild": "tsc",
+    "build": "vite build",
+    "prepare": "husky install"
   },
   "dependencies": {
     "focusable-selectors": "^0.4.0"
   },
   "devDependencies": {
-    "@custom-elements-manifest/analyzer": "^0.6.3",
-    "@open-wc/eslint-config": "^7.0.0",
-    "@open-wc/testing": "next",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "@rollup/plugin-typescript": "^8.3.3",
-    "@typescript-eslint/eslint-plugin": "^5.30.6",
-    "@typescript-eslint/parser": "^5.30.6",
-    "@web/dev-server": "^0.1.32",
-    "@web/dev-server-storybook": "next",
-    "@web/test-runner": "next",
-    "concurrently": "^7.2.2",
-    "eslint": "^8.19.0",
+    "@types/node": "^18.0.6",
+    "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
-    "rollup-plugin-terser": "^7.0.2",
-    "tslib": "^2.4.0",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "vite": "^3.0.2"
   },
-  "customElements": "custom-elements.json",
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
