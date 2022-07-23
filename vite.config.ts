@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
     return {
       build: {
         commonjsOptions: { include: [] },
-        // polyfillModulePreload: false,
+        polyfillModulePreload: false,
         sourcemap: true,
       },
       optimizeDeps: { disabled: false },
