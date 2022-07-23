@@ -6,9 +6,10 @@
     "node": ">=16.15.1",
     "npm": ">=8.11.0"
   },
-  "main": "dist/a11y-dialog.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "exports": {
-    ".": "./dist/a11y-dialog.js",
+    ".": "./dist/index.js",
     "./a11y-dialog.js": "./dist/a11y-dialog.js"
   },
   "types": "types/a11y-dialog.d.ts",

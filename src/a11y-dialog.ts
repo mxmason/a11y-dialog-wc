@@ -269,11 +269,11 @@ function trapTabKey(node: HTMLElement, event: KeyboardEvent) {
 
 export type A11yDialogEvent = 'cancel' | 'close' | 'show';
 
-if (!window.customElements.get('a11y-dialog')) {
-	window.customElements.define('a11y-dialog', A11yDialog);
-}
-
 declare global {
+	interface Window {
+		A11yDialog: typeof A11yDialog;
+	}
+
 	interface HTMLElementTagNameMap {
 		'a11y-dialog': A11yDialog;
 	}

@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
       commonjsOptions: { include: [] },
       target: 'esnext',
       lib: {
-        entry: 'src/a11y-dialog.ts',
+        entry: 'src/index.ts',
         formats: ['es'],
       },
       minify: false,
