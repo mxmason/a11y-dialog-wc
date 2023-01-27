@@ -1,4 +1,4 @@
-import { trapTabKey } from './dom-utils';
+import { moveFocusToDialog, trapTabKey } from './dom-utils';
 
 const enum BrowserEvents {
 	CLICK = 'click',
@@ -211,15 +211,6 @@ function maintainFocus(this: A11yDialogElement, event: FocusEvent) {
 	if (!nextActiveEl?.closest('a11y-dialog')) {
 		moveFocusToDialog(dialog);
 	}
-}
-
-/**
- * Set the focus to the first element with `autofocus` with the element or the
- * element itself
- */
-function moveFocusToDialog(node: HTMLElement) {
-	const focused = (node.querySelector('[autofocus]') || node) as HTMLElement;
-	focused.focus();
 }
 
 export type A11yDialogEvent = 'cancel' | 'close' | 'show';
