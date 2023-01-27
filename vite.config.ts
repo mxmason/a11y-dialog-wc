@@ -1,40 +1,44 @@
-import { defineConfig, loadEnv, UserConfig} from 'vite';
+import { defineConfig, UserConfig } from 'vite';
+import terser from '@rollup/plugin-terser';
+
+const plugins = [terser()];
+
+const umdConfig = {
+  format: 'umd',
+  globals: { 'focusable-selectors': 'focusableSelectors' },
+  name: 'A11yDialogWC',
+};
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), 'CI');
-  if (env.CI) {
-    return {
-      build: {
-        commonjsOptions: { include: [] },
-        polyfillModulePreload: false,
-        rollupOptions: {
-          output: {
-            // assetFileNames: '[name].[extname]',
-            // entryFileNames: '[name].js',
-            preserveModules: true,
-          },
-        },
-        sourcemap: true,
-      },
-      optimizeDeps: { disabled: false },
-    }
-  }
   return {
     build: {
-      commonjsOptions: { include: [] },
       target: 'esnext',
-      lib: {
-        entry: 'src/index.ts',
-        formats: ['es'],
-      },
       minify: false,
+      modulePreload: false,
+      commonjsOptions: { include: [] },
       rollupOptions: {
-        external: ['focusable-selectors'],
-        output: {
-          preserveModules: true,
-          entryFileNames: '[name].js',
-        },
+        input: 'src/index.ts',
+        output: [
+          {
+            format: 'es',
+            entryFileNames: '[name].js',
+          },
+          {
+            format: 'es',
+            entryFileNames: '[name].min.js',
+            plugins,
+          },
+          {
+            ...umdConfig,
+            entryFileNames: '[name].umd.js',
+          },
+          {
+            ...umdConfig,
+            plugins,
+            entryFileNames: '[name].umd.min.js',
+          },
+        ],
       },
     },
     optimizeDeps: { disabled: false },
