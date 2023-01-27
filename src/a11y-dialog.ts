@@ -1,4 +1,4 @@
-import { moveFocusToDialog, trapTabKey } from './dom-utils';
+import { getActiveElement, moveFocusToDialog, trapTabKey } from './dom-utils';
 
 const enum BrowserEvents {
 	CLICK = 'click',
@@ -18,12 +18,11 @@ const CLOSE_SELECTOR = '[data-a11y-dialog-close]';
 
 // Create a reusable template for the component.
 const template = document.createElement('template');
-template.innerHTML = `
-  <div part="overlay" data-a11y-dialog-cancel></div>
-  <div part="content" role="document">
-    <slot name="content"></slot>
-  </div>
-`;
+//   <div part="overlay" data-a11y-dialog-cancel></div>
+//   <div part="content" role="document">
+//     <slot name="content"></slot>
+//   </div>
+template.innerHTML = `<div part="overlay" data-a11y-dialog-cancel></div><div part="content" role="document"><slot name="content"></slot></div>`;
 
 export type A11yDialogElement = InstanceType<typeof A11yDialog>;
 
@@ -43,7 +42,7 @@ export class A11yDialog extends HTMLElement {
 		if (isOpen) {
 			this.setAttribute('open', '');
 			this.removeAttribute('aria-hidden');
-			this.previouslyFocused = document.activeElement as HTMLElement;
+			this.previouslyFocused = getActiveElement() as HTMLElement;
 			moveFocusToDialog(this);
 		} else {
 			this.removeAttribute('open');
