@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, UserConfig} from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -8,10 +8,17 @@ export default defineConfig(({ mode }) => {
       build: {
         commonjsOptions: { include: [] },
         polyfillModulePreload: false,
+        rollupOptions: {
+          output: {
+            // assetFileNames: '[name].[extname]',
+            // entryFileNames: '[name].js',
+            preserveModules: true,
+          },
+        },
         sourcemap: true,
       },
       optimizeDeps: { disabled: false },
-    };
+    }
   }
   return {
     build: {
@@ -35,5 +42,5 @@ export default defineConfig(({ mode }) => {
       open: true,
       port: 3000,
     },
-  };
+  } as UserConfig;
 });

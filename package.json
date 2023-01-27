@@ -21,10 +21,11 @@
     "start": "vite",
     "prebuild": "tsc",
     "build": "vite build",
+    "build:ci": "CI=true vite build",
     "prepare": "husky install"
   },
   "dependencies": {
-    "focusable-selectors": "^0.4.0"
+    "focusable-selectors": "^0.7.0"
   },
   "devDependencies": {
     "@types/node": "^18.0.6",

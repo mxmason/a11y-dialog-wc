@@ -1,4 +1,4 @@
-import focusableSelectors from 'focusable-selectors';
+import { trapTabKey } from './dom-utils';
 
 const enum BrowserEvents {
 	CLICK = 'click',
@@ -222,59 +222,13 @@ function moveFocusToDialog(node: HTMLElement) {
 	focused.focus();
 }
 
-/**
- * Get the focusable children of the given element.
- */
-function getFocusableChildren(node: ParentNode): HTMLElement[] {
-	const focusableEls = Array.prototype.slice.call(
-		node.querySelectorAll(focusableSelectors.join(','))
-	) as HTMLElement[];
-	return focusableEls.filter(
-		child =>
-			!!(
-				child.offsetWidth ||
-				child.offsetHeight ||
-				child.getClientRects().length
-			)
-	);
-}
-
-/**
- * Trap the focus inside the given element.
- */
-function trapTabKey(node: HTMLElement, event: KeyboardEvent) {
-	const focusableChildren = getFocusableChildren(node);
-	const focusedItemIndex = focusableChildren.indexOf(
-		document.activeElement as HTMLElement
-	);
-
-	// If the SHIFT key is pressed while tabbing (moving backwards) and the
-	// currently focused item is the first one, move the focus to the last
-	// focusable item from the dialog element
-	if (event.shiftKey && focusedItemIndex === 0) {
-		focusableChildren[focusableChildren.length - 1].focus();
-		event.preventDefault();
-
-		// If the SHIFT key is not pressed (moving forwards) and the currently
-		// focused item is the last one, move the focus to the first focusable item
-		// from the dialog element
-	} else if (
-		!event.shiftKey &&
-		focusedItemIndex === focusableChildren.length - 1
-	) {
-		focusableChildren[0].focus();
-		event.preventDefault();
-	}
-}
-
 export type A11yDialogEvent = 'cancel' | 'close' | 'show';
 
 declare global {
-	interface Window {
-		A11yDialog: typeof A11yDialog;
-	}
-
 	interface HTMLElementTagNameMap {
 		'a11y-dialog': A11yDialog;
+	}
+	interface Window {
+		A11yDialog: typeof A11yDialog;
 	}
 }
