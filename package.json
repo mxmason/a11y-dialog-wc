@@ -28,6 +28,7 @@
     "focusable-selectors": "^0.7.0"
   },
   "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.0",
     "@types/node": "^18.11.18",
     "eslint": "^8.32.0",
     "eslint-config-prettier": "^8.6.0",
